@@ -7,21 +7,24 @@ function Player:new(o)
     self.__index = self;
 
     -- * Properties
-    self.form = memory.readbyte(0x19);
+    self.form = memory.readbyte(0x19);      -- Player PowerUP (0 = Mini, 1 = HumanSize, etc )
 
-    self.y = memory.read_s16_le(0x96);
-    self.x = memory.read_s16_le(0x94);
+    self.x = 0;                             -- Player X Position
+    self.y = 0;                             -- Player Y Position
 
-    self.layerX = memory.read_s16_le(0x1A);
-    self.layerY = memory.read_s16_le(0x1C);
+    self.layerX = memory.read_s16_le(0x1A); -- ?Camera X Position 
+    self.layerY = memory.read_s16_le(0x1C); -- ?Camera Y Position
 
-    self.xScreen = self.x - self.layerX;
-    self.yScreen = self.y - self.layerY;
+    -- Remember: Axis on 2nd quadrant ( x = Left ,y = Top )
+    self.xScreen = self.x - self.layerX;    -- Player X Position on Screen
+    self.yScreen = self.y - self.layerY;    -- Player Y Position on Camera
+    
+    self.xVel = memory.readbyte(0x7B);      -- Player X Velocity
+    self.yVel = memory.readbyte(0x7D);      -- Player Y Velocity
 
-    self.xVel = memory.readbyte(0x7B);
-    self.yVel = memory.readbyte(0x7D);
+    self.isDead = Player:CheckLife();       -- Player Status
 
-    self.isDead = (memory.readbyte(0x13E0) == 62);
+    self.inputs = Player:GetInputs();       -- All Inputs;
 
     return o;
 end
@@ -38,8 +41,46 @@ function Player:GetInputs()
         end
     end
     
+    self.inputs = a;
+
     return a;
 
 end
+
+function Player:CheckLife()
+    local isDead = (memory.readbyte(0x13E0) == 62);
+    self.isDead = isDead;
+
+    return self.isDead;
+end
+
+function Player:GetPosition()
+    local x = memory.read_s16_le(0x94);
+    local y = memory.read_s16_le(0x96);
+
+    self.x = x;
+    self.y = y;
+
+    return self.x, self.y;
+end
+
+function Player:GetLayerPosition()
+    local xLayer = memory.read_s16_le(0x1A);
+    local yLayer = memory.read_s16_le(0x1C);
+
+    self.xLayer = xLayer;
+    self.yLayer = yLayer;
+
+    return self.x, self.y;
+end
+
+
+function Player:Update()
+    self:CheckLife();
+    self:GetInputs();
+    self:GetPosition();
+    self:GetLayerPosition();
+end
+
 
 return Player;

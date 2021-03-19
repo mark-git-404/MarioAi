@@ -16,7 +16,7 @@ end
 
 function Level:GetScore()
     if self.score < self.player.x then
-        Level.score = self.player.x;
+        self.score = self.player.x;
     end
 
     return self.score;
@@ -26,7 +26,8 @@ end
 function Level:ResetScore()
     self.score = 0;
 end
-    
+
+-- TODO: GET INPUTS;
 function Level:GetInputs() 
     local a = {}
 
@@ -38,6 +39,20 @@ function Level:GetInputs()
     end
 
     return a;
+end
+
+function Level:CheckStatus()
+    local status = (memory.readbyte(0x1493) > 0 or memory.readbyte(0x1434) > 0); 
+    self.isGone = status
+
+    return self.isGone;
+end
+
+function Level:Update()
+    self:GetScore();
+    self:CheckStatus();
+
+    return 1;
 end
 
 

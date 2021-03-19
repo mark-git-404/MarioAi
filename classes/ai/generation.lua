@@ -1,21 +1,25 @@
+local Specie = require "./classes/ai/specie"
+
 local Generation = {}
 
 function Generation:new(o, n )
-    o = o or {}
+    o = o or {};
     setmetatable(o, self);
 
-    self.__index = self;
+    self.__index = self;        
     
-    self.numberOfSpecies = n;
+    self.nSpecies = n;          -- Contains the number of Species in Generation
+                                -- Equivalent to #species;
 
-    self.species = {}
-    self.actualPos = 1; -- * Actual Specie Position; 
+    self.species = {};          -- Contains All Species of that Generation
+    self.actual = 1;            -- Actual Specie;
+    self.actualGeneration = 1;  -- Actual Generation;
 
     return o;
 end
 
 function Generation:CreateSpecies()
-    for i = 1, self.numberOfSpecies do
+    for i = 1, self.nSpecies do
         self.species[i] = Specie:new();
     end
 
@@ -45,9 +49,11 @@ function Generation:GetActualSpecie()
     return self.species[self.actual];
 end
 
+function Generation:NextGeneration()
+    self.actual = 1;
+    self.actualGeneration = self.actualGeneration + 1;
 
-
-
-
+    return self.actualGeneration;
+end
 
 return Generation;
